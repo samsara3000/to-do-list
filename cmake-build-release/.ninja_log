@@ -1,0 +1,22 @@
+# ninja log v6
+23	649	7565201124803304	CMakeFiles/install.util	d2a6d707ce4d2505
+570	612	7565066477864171	C:/build/To-Do/cmake-build-release/To-Do_autogen/EWIEGA46WW/qrc_resources.cpp	23e612e339ff13da
+22	119	7565105872108432	To-Do_autogen/timestamp	57387742a07de5bb
+22	119	7565105872108432	C:/build/To-Do/cmake-build-release/To-Do_autogen/timestamp	57387742a07de5bb
+22	119	7565105872108432	To-Do_autogen/mocs_compilation.cpp	57387742a07de5bb
+19	677	7566040277487647	build.ninja	bdd5cc6d8815101e
+22	119	7565105872108432	C:/build/To-Do/cmake-build-release/To-Do_autogen/mocs_compilation.cpp	57387742a07de5bb
+570	612	7565066477864171	To-Do_autogen/EWIEGA46WW/qrc_resources.cpp	23e612e339ff13da
+856	922	7565221080380333	C:/build/To-Do/cmake-build-release/ToDo_autogen/EWIEGA46WW/qrc_resources.cpp	7fcaf9d595b86317
+119	1001	7565105873078462	To-Do.exe	eef161ea8b912733
+35	853	7565221078999272	ToDo_autogen/timestamp	55eca94f8041370d
+35	853	7565221078999272	ToDo_autogen/mocs_compilation.cpp	55eca94f8041370d
+3905	4071	7565221110298284	ToDo.exe	f3c7a7c6f82548c1
+922	3265	7565221080460337	CMakeFiles/ToDo.dir/ToDo_autogen/mocs_compilation.cpp.obj	359e854af420438
+35	853	7565221078999272	C:/build/To-Do/cmake-build-release/ToDo_autogen/timestamp	55eca94f8041370d
+35	853	7565221078999272	C:/build/To-Do/cmake-build-release/ToDo_autogen/mocs_compilation.cpp	55eca94f8041370d
+856	922	7565221080380333	ToDo_autogen/EWIEGA46WW/qrc_resources.cpp	7fcaf9d595b86317
+939	1037	7565221080630341	CMakeFiles/ToDo.dir/to_do.rc.obj	9b5311efc217ed35
+944	1053	7565221080690330	CMakeFiles/ToDo.dir/ToDo_autogen/EWIEGA46WW/qrc_resources.cpp.obj	b404247626b5c6bf
+927	3198	7565221080510349	CMakeFiles/ToDo.dir/main.cpp.obj	7fc0dbec6cd1fd28
+932	3905	7565221080560342	CMakeFiles/ToDo.dir/ToDoList.cpp.obj	fe38383cb2ff997a

@@ -1,0 +1,30 @@
+{
+	"BUILD_DIR" : "C:/build/To-Do/cmake-build-release/ToDo_autogen",
+	"CMAKE_BINARY_DIR" : "C:/build/To-Do/cmake-build-release",
+	"CMAKE_CURRENT_BINARY_DIR" : "C:/build/To-Do/cmake-build-release",
+	"CMAKE_CURRENT_SOURCE_DIR" : "C:/build/To-Do",
+	"CMAKE_SOURCE_DIR" : "C:/build/To-Do",
+	"CROSS_CONFIG" : false,
+	"GENERATOR" : "Ninja",
+	"INCLUDE_DIR" : "C:/build/To-Do/cmake-build-release/ToDo_autogen/include",
+	"INPUTS" : 
+	[
+		"C:/build/To-Do/icons/delete.png",
+		"C:/build/To-Do/icons/add_link.png",
+		"C:/build/To-Do/icons/save.png",
+		"C:/build/To-Do/icons/add.png",
+		"C:/build/To-Do/icons/to_do.png",
+		"C:/build/To-Do/icons/load.png"
+	],
+	"LOCK_FILE" : "C:/build/To-Do/cmake-build-release/CMakeFiles/ToDo_autogen.dir/AutoRcc_resources_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "--no-zstd", "-name", "resources" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_resources.cpp",
+	"RCC_EXECUTABLE" : "C:/Qt/6.5.3/mingw_64/./bin/rcc.exe",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "C:/build/To-Do/cmake-build-release/CMakeFiles/ToDo_autogen.dir/AutoRcc_resources_EWIEGA46WW_Used.txt",
+	"SOURCE" : "C:/build/To-Do/resources.qrc",
+	"USE_BETTER_GRAPH" : false,
+	"VERBOSITY" : 0
+}
