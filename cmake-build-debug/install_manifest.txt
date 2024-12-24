@@ -1,7 +1,0 @@
-C:/build/To-Do/bin/To-Do.exe
-C:/build/To-Do/bin/icons/icons/add.png
-C:/build/To-Do/bin/icons/icons/delete.png
-C:/build/To-Do/bin/icons/icons/load.png
-C:/build/To-Do/bin/icons/icons/save.png
-C:/build/To-Do/bin/icons/icons/to_do.ico
-C:/build/To-Do/bin/icons/icons/to_do.png

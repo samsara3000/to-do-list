@@ -1,2 +1,2 @@
 cmake-build-release/
-cmake-build-debug/
+cmake-build-debug/git rm -r --cached cmake-build-release/git rm -r --cached cmake-build-release/git rm -r --cached cmake-build-release/
