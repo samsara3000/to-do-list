@@ -1,11 +1,11 @@
 #ifndef TODOLIST_H
 #define TODOLIST_H
+#include "CustomListWidget.h"
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMainWindow>
 #include <QObject>
 #include <QToolButton>
-
 enum class buttons
 {
   add,
@@ -33,15 +33,15 @@ private slots:
   void changeFontSize ();
   void showContextMenu (const QPoint &pos);
   void searchTasks (const QString &text);
-  void addTaskWithLink();
-  void openLink(QListWidgetItem *item);
+  void addTaskWithLink ();
+  void openLink (QListWidgetItem *item);
 
 private:
   void createWidgets ();
   void createLayout ();
   void createConnections ();
 
-  QListWidget *taskList;
+  CustomListWidget *taskList;
   QLineEdit *taskInput;
   QLineEdit *searchInput;
   QToolButton *removeButton;

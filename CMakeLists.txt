@@ -10,6 +10,7 @@ set(CMAKE_PREFIX_PATH "C:/Qt/6.5.3/mingw_64/lib/cmake;${CMAKE_PREFIX_PATH}")
 # Найти модуль Qt6 Widgets
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Автоматическая генерация MOC и RCC
 set(CMAKE_AUTOMOC ON)
@@ -18,7 +19,8 @@ set(CMAKE_AUTORCC ON)
 # Добавить исполняемый файл
 add_executable(ToDo
         main.cpp
-        ToDoList.cpp
+        src/ToDoList.cpp
+        src/CustomListWidget.cpp
         resources.qrc
 )
 
@@ -26,6 +28,8 @@ add_executable(ToDo
 if(WIN32)
     target_sources(ToDo PRIVATE to_do.rc)
 endif()
+
+# Добавить папку с заголовочными файлами
 
 # Линковка с Qt6 Widgets
 target_link_libraries(ToDo PRIVATE Qt6::Widgets)

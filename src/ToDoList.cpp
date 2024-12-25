@@ -51,7 +51,7 @@ void ToDoList::createWidgets ()
     button->setIcon (icon);
     button->setIconSize (QSize (30, 30));
   };
-  taskList = new QListWidget (this);
+  taskList = new CustomListWidget (this);
   taskList->setDragEnabled (true);
   taskList->setAcceptDrops (true);
   taskList->setDropIndicatorShown (true);
@@ -100,11 +100,11 @@ void ToDoList::createConnections ()
   connect (saveButton, &QToolButton::clicked, this, &ToDoList::saveTasks);
   connect (loadButton, &QToolButton::clicked, this, &ToDoList::loadTasks);
   connect (taskInput, &QLineEdit::returnPressed, this, &ToDoList::addTask);
-  connect (taskList, &QListWidget::itemDoubleClicked, this, &ToDoList::editTask);
-  connect (taskList, &QListWidget::customContextMenuRequested, this, &ToDoList::showContextMenu);
+  connect (taskList, &CustomListWidget::itemDoubleClicked, this, &ToDoList::editTask);
+  connect (taskList, &CustomListWidget::customContextMenuRequested, this, &ToDoList::showContextMenu);
   connect (searchInput, &QLineEdit::textChanged, this, &ToDoList::searchTasks);
   connect (addLinkButton, &QToolButton::clicked, this, &ToDoList::addTaskWithLink);
-  connect (taskList, &QListWidget::itemClicked, this, &ToDoList::openLink);
+  connect (taskList, &CustomListWidget::itemClicked, this, &ToDoList::openLink);
 }
 
 void ToDoList::addTask ()
@@ -148,35 +148,43 @@ void ToDoList::saveTasks ()
     }
 }
 
-void ToDoList::loadTasks() {
-  QString fileName = QFileDialog::getOpenFileName(this, "Load Tasks", "", "Text Files (*.txt);;All Files (*)");
-  if (fileName.isEmpty()) {
+void ToDoList::loadTasks ()
+{
+  QString fileName = QFileDialog::getOpenFileName (this, "Load Tasks", "", "Text Files (*.txt);;All Files (*)");
+  if (fileName.isEmpty ())
+    {
       return;
-  }
+    }
 
-  QFile file(fileName);
-  if (file.open(QFile::ReadOnly | QFile::Text)) {
-      QTextStream in(&file);
-      taskList->clear();
-      while (!in.atEnd()) {
-          QString line = in.readLine();
-          QStringList parts = line.split("|");
-          if (parts.size() == 3) {
-              QListWidgetItem *item = new QListWidgetItem(parts[0], taskList);
-              item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-              item->setCheckState(parts[1] == "1" ? Qt::Checked : Qt::Unchecked);
-              item->setData(Qt::UserRole, parts[2]);
-              if (!parts[2].isEmpty()) {
-                  item->setText(QString("%2").arg(parts[0]));
-                  item->setForeground(Qt::blue);
-                  item->setToolTip(parts[2]);
-              }
-          }
-      }
-      file.close();
-  } else {
-      QMessageBox::warning(this, "Error", "Cannot load tasks");
-  }
+  QFile file (fileName);
+  if (file.open (QFile::ReadOnly | QFile::Text))
+    {
+      QTextStream in (&file);
+      taskList->clear ();
+      while (!in.atEnd ())
+        {
+          QString line = in.readLine ();
+          QStringList parts = line.split ("|");
+          if (parts.size () == 3)
+            {
+              QListWidgetItem *item = new QListWidgetItem (parts[0], taskList);
+              item->setFlags (item->flags () | Qt::ItemIsUserCheckable);
+              item->setCheckState (parts[1] == "1" ? Qt::Checked : Qt::Unchecked);
+              item->setData (Qt::UserRole, parts[2]);
+              if (!parts[2].isEmpty ())
+                {
+                  item->setText (QString ("%2").arg (parts[0]));
+                  item->setForeground (Qt::blue);
+                  item->setToolTip (parts[2]);
+                }
+            }
+        }
+      file.close ();
+    }
+  else
+    {
+      QMessageBox::warning (this, "Error", "Cannot load tasks");
+    }
 }
 void ToDoList::editTask (QListWidgetItem *item) { taskList->editItem (item); }
 
@@ -262,3 +270,9 @@ void ToDoList::openLink (QListWidgetItem *item)
       QDesktopServices::openUrl (QUrl (link));
     }
 }
+
+
+
+
+// Include the MOC file
+#include "moc_ToDoList.cpp"
