@@ -41,10 +41,19 @@ install(TARGETS ToDo
 
 # ---------- Конфигурация CPack ----------
 include(InstallRequiredSystemLibraries)
+# Получить версию из git
+execute_process(
+        COMMAND git describe --tags --always
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
-set(CPACK_PACKAGE_NAME "ToDo")
-set(CPACK_PACKAGE_VERSION "1.0.0")
-set(CPACK_PACKAGE_CONTACT "Your Name <your.email@example.com>")
+# Установить версию пакета
+
+set(CPACK_PACKAGE_NAME "To-Do List")
+set(CPACK_PACKAGE_VERSION ${GIT_VERSION})
+set(CPACK_PACKAGE_CONTACT "Ruslan Gomzyakov <ruslan.gomziakov@math.msu.ru>")
 set(CPACK_PACKAGE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 if(WIN32)
