@@ -29,8 +29,6 @@ if(WIN32)
     target_sources(ToDo PRIVATE to_do.rc)
 endif()
 
-# Добавить папку с заголовочными файлами
-
 # Линковка с Qt6 Widgets
 target_link_libraries(ToDo PRIVATE Qt6::Widgets)
 
@@ -43,14 +41,17 @@ install(TARGETS ToDo
 include(InstallRequiredSystemLibraries)
 # Получить версию из git
 execute_process(
-        COMMAND git describe --tags --always
+        COMMAND git describe --tags
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE GIT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
 )
-
 # Установить версию пакета
-
+if(NOT GIT_VERSION)
+    set(GIT_VERSION "0.1.0")
+endif()
+message(STATUS "Package version: ${GIT_VERSION}")
 set(CPACK_PACKAGE_NAME "To-Do List")
 set(CPACK_PACKAGE_VERSION ${GIT_VERSION})
 set(CPACK_PACKAGE_CONTACT "Ruslan Gomzyakov <ruslan.gomziakov@math.msu.ru>")
@@ -100,4 +101,3 @@ elseif(UNIX)
         endif()
     ")
 endif()
-
