@@ -44,6 +44,7 @@ private:
   CustomListWidget *taskList;
   QLineEdit *taskInput;
   QLineEdit *searchInput;
+  QToolButton *addButton;
   QToolButton *removeButton;
   QToolButton *saveButton;
   QToolButton *loadButton;

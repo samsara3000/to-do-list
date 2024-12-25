@@ -42,6 +42,17 @@ ToDoList::ToDoList (QWidget *parent) : QMainWindow (parent)
 
   QIcon appIcon (":/icons/to_do.png");
   setWindowIcon (appIcon);
+
+  // Set the background color to a dark theme similar to CLion
+  setStyleSheet("background-color: #2b2b2b; color: #a9b7c6;");
+  taskList->setStyleSheet("background-color: #3c3f41; color: #a9b7c6;");
+  taskInput->setStyleSheet("background-color: #3c3f41; color: #a9b7c6;");
+  searchInput->setStyleSheet("background-color: #3c3f41; color: #a9b7c6;");
+  addButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
+  removeButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
+  saveButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
+  loadButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
+  addLinkButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
 }
 
 void ToDoList::createWidgets ()
@@ -59,6 +70,8 @@ void ToDoList::createWidgets ()
 
   taskInput = new QLineEdit (this);
   searchInput = new QLineEdit (this);
+  addButton = new QToolButton (this);
+  add_icon (addButton, buttons::add);
   removeButton = new QToolButton (this);
   add_icon (removeButton, buttons::remove);
   saveButton = new QToolButton (this);
@@ -67,6 +80,7 @@ void ToDoList::createWidgets ()
   add_icon (loadButton, buttons::load);
   addLinkButton = new QToolButton (this);
   add_icon (addLinkButton, buttons::add_link);
+  addButton->setFixedSize (25, 25);
   removeButton->setFixedSize (25, 25);
   saveButton->setFixedSize (25, 25);
   loadButton->setFixedSize (25, 25);
@@ -82,10 +96,16 @@ void ToDoList::createLayout ()
   layout->addWidget (taskList);
   layout->addWidget (taskInput);
   QHBoxLayout *buttonLayout = new QHBoxLayout;
+  buttonLayout->addWidget (loadButton);
+  buttonLayout->addStretch ();
+  buttonLayout->addWidget (addButton);
   buttonLayout->addWidget (addLinkButton);
   buttonLayout->addWidget (removeButton);
+  buttonLayout->addStretch ();
   buttonLayout->addWidget (saveButton);
-  buttonLayout->addWidget (loadButton);
+
+
+
 
   layout->addLayout (buttonLayout);
 
@@ -96,11 +116,12 @@ void ToDoList::createLayout ()
 
 void ToDoList::createConnections ()
 {
+  connect (addButton, &QToolButton::clicked, this, &ToDoList::addTask);
   connect (removeButton, &QToolButton::clicked, this, &ToDoList::removeTask);
   connect (saveButton, &QToolButton::clicked, this, &ToDoList::saveTasks);
   connect (loadButton, &QToolButton::clicked, this, &ToDoList::loadTasks);
   connect (taskInput, &QLineEdit::returnPressed, this, &ToDoList::addTask);
-  connect (taskList, &CustomListWidget::itemDoubleClicked, this, &ToDoList::editTask);
+
   connect (taskList, &CustomListWidget::customContextMenuRequested, this, &ToDoList::showContextMenu);
   connect (searchInput, &QLineEdit::textChanged, this, &ToDoList::searchTasks);
   connect (addLinkButton, &QToolButton::clicked, this, &ToDoList::addTaskWithLink);
@@ -168,7 +189,7 @@ void ToDoList::loadTasks ()
           if (parts.size () == 3)
             {
               QListWidgetItem *item = new QListWidgetItem (parts[0], taskList);
-              item->setFlags (item->flags () | Qt::ItemIsUserCheckable);
+              item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
               item->setCheckState (parts[1] == "1" ? Qt::Checked : Qt::Unchecked);
               item->setData (Qt::UserRole, parts[2]);
               if (!parts[2].isEmpty ())
@@ -194,8 +215,11 @@ void ToDoList::showContextMenu (const QPoint &pos)
   if (item)
     {
       QMenu contextMenu;
+      contextMenu.setStyleSheet("background-color: #2b2b2b; color: #a9b7c6;");
       QAction *changeColorAction = contextMenu.addAction ("Изменить цвет");
       QAction *changeFontSizeAction = contextMenu.addAction ("Изменить размер шрифта");
+      QAction *editAction = contextMenu.addAction ("Редактировать");
+      connect (editAction, &QAction::triggered, [this, item]() { editTask(item); });
       connect (changeColorAction, &QAction::triggered, this, &ToDoList::changeTaskColor);
       connect (changeFontSizeAction, &QAction::triggered, this, &ToDoList::changeFontSize);
       contextMenu.exec (taskList->mapToGlobal (pos));
@@ -255,7 +279,7 @@ void ToDoList::addTaskWithLink ()
           item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
           item->setCheckState (Qt::Unchecked);
           item->setText (QString ("%1 - %2").arg (link, task));
-          item->setForeground (Qt::blue);
+          item->setForeground (QColor("#00bfff"));
           item->setToolTip (link);
           taskInput->clear ();
         }

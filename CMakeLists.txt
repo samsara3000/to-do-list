@@ -81,7 +81,7 @@ elseif(UNIX)
     install(CODE "
         message(STATUS \"Packaging dependencies on Linux...\")
         execute_process(
-            COMMAND ldd ${CMAKE_INSTALL_PREFIX}/bin/ToDo | grep Qt | awk '{print \$3}' | xargs -I '{}' cp '{}' ${CMAKE_INSTALL_PREFIX}/bin/
+            COMMAND ${CMAKE_SOURCE_DIR}/package_dependencies.sh ${CMAKE_INSTALL_PREFIX}/bin/ToDo ${CMAKE_INSTALL_PREFIX}/bin/
             RESULT_VARIABLE result
             OUTPUT_VARIABLE output
             ERROR_VARIABLE error_output
