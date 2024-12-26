@@ -29,6 +29,26 @@ QString get_icon_path (buttons button)
   return "";
 }
 
+QString get_tool_tip_name (buttons button)
+{
+  switch (button)
+    {
+      case buttons::add:
+        return "Add Text Task";
+      case buttons::remove:
+        return "Delete Task";
+      case buttons::save:
+        return "Save Tasks to File";
+      case buttons::load:
+        return "Load Tasks from File";
+      case buttons::add_link:
+        return "Add Task with Redmine Link";
+      case buttons::none:
+        return "";
+    };
+  return "";
+}
+
 ToDoList::ToDoList (QWidget *parent) : QMainWindow (parent)
 {
   createWidgets ();
@@ -61,6 +81,7 @@ void ToDoList::createWidgets ()
     QIcon icon (get_icon_path (button_type));
     button->setIcon (icon);
     button->setIconSize (QSize (30, 30));
+    button->setToolTip (get_tool_tip_name (button_type));
   };
   taskList = new CustomListWidget (this);
   taskList->setDragEnabled (true);
