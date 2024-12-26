@@ -2,21 +2,21 @@ cmake_minimum_required(VERSION 3.21)
 
 project(ToDo LANGUAGES CXX)
 
-# Установить стандарт C++
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_PREFIX_PATH "C:/Qt/6.5.3/mingw_64/lib/cmake;${CMAKE_PREFIX_PATH}")
 
-# Найти модуль Qt6 Widgets
+# Find Qt6 Widgets module
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# Автоматическая генерация MOC и RCC
+# Enable automatic MOC and RCC
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-# Добавить исполняемый файл
+# Add executable
 add_executable(ToDo
         main.cpp
         src/ToDoList.cpp
@@ -24,36 +24,41 @@ add_executable(ToDo
         resources.qrc
 )
 
-# Добавить ресурсный файл только для Windows
+# Add resource file for Windows only
 if(WIN32)
     target_sources(ToDo PRIVATE to_do.rc)
 endif()
 
-# Линковка с Qt6 Widgets
+# Link with Qt6 Widgets
 target_link_libraries(ToDo PRIVATE Qt6::Widgets)
 
-# ---------- Установка ----------
+# ---------- Installation ----------
 install(TARGETS ToDo
         RUNTIME DESTINATION bin
 )
 
-# ---------- Конфигурация CPack ----------
+# ---------- CPack Configuration ----------
 include(InstallRequiredSystemLibraries)
-# Получить версию из git
+
+# Read version from version.txt
+file(READ "${CMAKE_SOURCE_DIR}/version.txt" VERSION_CONTENTS)
+string(STRIP "${VERSION_CONTENTS}" VERSION_NUMBER)
+
+# Get unique build identifier (e.g., from git)
 execute_process(
-        COMMAND git describe --tags
+        COMMAND git rev-parse --short HEAD
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        OUTPUT_VARIABLE GIT_VERSION
+        OUTPUT_VARIABLE GIT_COMMIT
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_QUIET
 )
-# Установить версию пакета
-if(NOT GIT_VERSION)
-    set(GIT_VERSION "0.1.0")
+
+# Set package version
+if(NOT GIT_COMMIT)
+    set(GIT_COMMIT "0")
 endif()
-message(STATUS "Package version: ${GIT_VERSION}")
 set(CPACK_PACKAGE_NAME "To-Do List")
-set(CPACK_PACKAGE_VERSION ${GIT_VERSION})
+set(CPACK_PACKAGE_VERSION "v1.${VERSION_NUMBER}.${GIT_COMMIT}")
 set(CPACK_PACKAGE_CONTACT "Ruslan Gomzyakov <ruslan.gomziakov@math.msu.ru>")
 set(CPACK_PACKAGE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
@@ -70,7 +75,7 @@ endif()
 
 include(CPack)
 
-# ---------- Развертывание зависимостей Qt ----------
+# ---------- Deploy Qt Dependencies ----------
 if(WIN32)
     find_program(WINDEPLOYQT_EXECUTABLE windeployqt PATHS "${Qt6_DIR}/../../../bin" REQUIRED)
 
@@ -87,7 +92,7 @@ if(WIN32)
         endif()
     ")
 elseif(UNIX)
-    # Добавить шаг для упаковки библиотек Qt на Linux
+    # Add step to package Qt libraries on Linux
     install(CODE "
         message(STATUS \"Packaging dependencies on Linux...\")
         execute_process(
