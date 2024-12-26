@@ -5,7 +5,7 @@ CURRENT_VERSION=$(cat version.txt)
 
 # Увеличить версию
 VERSION_MAJOR=${CURRENT_VERSION#}
-NEW_VERSION="v$VERSION_MAJOR"
+NEW_VERSION="$VERSION_MAJOR"
 
 # Записать новую версию в файл
 echo $NEW_VERSION > version.txt
