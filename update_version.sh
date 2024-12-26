@@ -4,7 +4,7 @@
 CURRENT_VERSION=$(cat version.txt)
 
 # Увеличить версию
-VERSION_MAJOR=${CURRENT_VERSION#v}
+VERSION_MAJOR=${CURRENT_VERSION#}
 NEW_VERSION="v$VERSION_MAJOR"
 
 # Записать новую версию в файл
