@@ -1,15 +1,19 @@
 #include "ToDoList.h"
+
+#include <QApplication>
 #include <QColorDialog>
-#include <QDateTime>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QToolButton>
 #include <QVBoxLayout>
-
-QString get_icon_path (buttons button)
+#include <iostream>
+#include <QToolBar>
+QString get_icon_path (const buttons button)
 {
   switch (button)
     {
@@ -29,7 +33,7 @@ QString get_icon_path (buttons button)
   return "";
 }
 
-QString get_tool_tip_name (buttons button)
+QString get_tool_tip_name (const buttons button)
 {
   switch (button)
     {
@@ -51,28 +55,119 @@ QString get_tool_tip_name (buttons button)
 
 ToDoList::ToDoList (QWidget *parent) : QMainWindow (parent)
 {
+  QFont defaultFont = QApplication::font ();
+  defaultFont.setPointSize (11);
+  QApplication::setFont (defaultFont);
   createWidgets ();
   createLayout ();
   createConnections ();
   setWindowTitle ("To-Do List");
 
-  setMaximumSize (300, 300);
+  setMaximumSize (400, 300);
   // Set the window to stay on top of all other windows
   setWindowFlags (windowFlags () | Qt::WindowStaysOnTopHint);
 
-  QIcon appIcon (":/icons/to_do.png");
+  const QIcon appIcon (":/icons/to_do.png");
   setWindowIcon (appIcon);
-
   // Set the background color to a dark theme similar to CLion
-  setStyleSheet("background-color: #2b2b2b; color: #a9b7c6;");
-  taskList->setStyleSheet("background-color: #3c3f41; color: #a9b7c6;");
-  taskInput->setStyleSheet("background-color: #3c3f41; color: #a9b7c6;");
-  searchInput->setStyleSheet("background-color: #3c3f41; color: #a9b7c6;");
-  addButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
-  removeButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
-  saveButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
-  loadButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
-  addLinkButton->setStyleSheet("background-color: #2b2b2b; color: #a9b7c6; padding: 0px; margin: 0px; border: none;");
+  setStyleSheet ("background-color: #21252b; color: #ffffff;");
+  const QColor focusColor (0x5c7cfa);
+
+  taskList->setStyleSheet (QStringLiteral (
+                               "QListWidget {"
+                               "background-color: #282c34; color: #a9b7c6; "
+                               "border: 1px solid #3c3f41; "
+                               "border-radius: 3px; "
+                               "padding: 2px; "
+                               "margin: 2px; "
+                               "outline: none; "
+                               "selection-background-color: #404859; "
+                               "selection-color: #ffffff; "
+                               "} "
+                               "QListWidget:focus {"
+                               "border: 1px solid %1; "
+                               "} "
+                               "QListWidget::item:hover {"
+                               "    background-color: #404859;"
+                               "}"
+                               "QListWidget::item:selected:active {"
+                               "background-color: #404859; "
+                               "}"
+                               "QLineEdit {"
+                               "    background-color: #404859;"
+                               "    color: #ffffff;"
+                               "    border: none;"
+                               "}")
+                               .arg (focusColor.name ()));
+  taskInput->setPlaceholderText ("Add new task...");
+  taskInput->setStyleSheet (QStringLiteral (
+                                "QLineEdit {"
+                                "background-color: #282c34; color: #a9b7c6; "
+                                "border: 1px solid #3c3f41; "
+                                "border-radius: 3px; "
+                                "padding: 2px; "
+                                "margin: 2px; "
+                                "outline: none; "
+                                "selection-background-color: #404859; "
+                                "selection-color: #ffffff; "
+                                "} "
+                                "QLineEdit:focus {"
+                                "border: 1px solid %1; "
+                                "} "
+                                "QLineEdit::item:selected:active {"
+                                "background-color: #404859; "
+                                "}"
+                                "QLineEdit:focus::placeholder {"
+                                "font-size: 12px;"
+                                "color: #a9b7c6;"
+                                "}")
+                                .arg (focusColor.name ()));
+  searchInput->setPlaceholderText ("Search...");
+  searchInput->setStyleSheet (QStringLiteral (
+                                  "QLineEdit {"
+                                  "background-color: #282c34; color: #a9b7c6; "
+                                  "border: 1px solid #3c3f41; "
+                                  "border-radius: 3px; "
+                                  "padding: 2px; "
+                                  "margin: 2px; "
+                                  "outline: none; "
+                                  "selection-background-color: #404859; "
+                                  "selection-color: #ffffff; "
+                                  "} "
+                                  "QLineEdit:focus {"
+                                  "border: 1px solid %1; "
+                                  "} "
+                                  "QLineEdit::item:selected:active {"
+                                  "background-color: #404859; "
+                                  "}"
+                                  "QLineEdit:focus::placeholder {"
+                                  "font-size: 12px;"
+                                  "color: #a9b7c6;"
+                                  "}")
+                                  .arg (focusColor.name ()));
+
+  addButton->setStyleSheet ("background-color: #21252b; color: #ffffff; padding: 0px; margin: 0px; border: none;");
+  removeButton->setStyleSheet ("background-color: #21252b; color: #ffffff; padding: 0px; margin: 0px; border: none;");
+  saveButton->setStyleSheet ("background-color: #21252b; color: #ffffff; padding: 0px; margin: 0px; border: none;");
+  loadButton->setStyleSheet ("background-color: #21252b; color: #ffffff; padding: 0px; margin: 0px; border: none;");
+  addLinkButton->setStyleSheet ("background-color: #21252b; color: #ffffff; padding: 0px; margin: 0px; border: none;");
+
+  qApp->setStyleSheet (
+      "QInputDialog {"
+      "background-color: #282c34; color: #ffffff; "
+      "} "
+      "QColorDialog {"
+      "background-color: #282c34; color: #ffffff; "
+      "} "
+      "QMessageBox {"
+      "background-color: #282c34; color: #ffffff; "
+      "} "
+      "QMenu {"
+      "background-color: #282c34; color: #ffffff; "
+      "} "
+      "QToolTip {"
+      "background-color: #282c34; color: #ffffff; "
+      "}");
 }
 
 void ToDoList::createWidgets ()
@@ -107,16 +202,15 @@ void ToDoList::createWidgets ()
   loadButton->setFixedSize (25, 25);
   addLinkButton->setFixedSize (25, 25);
   taskList->setContextMenuPolicy (Qt::CustomContextMenu);
-  searchInput->setPlaceholderText ("Search...");
 }
 
 void ToDoList::createLayout ()
 {
-  QVBoxLayout *layout = new QVBoxLayout;
+  auto *layout = new QVBoxLayout;
   layout->addWidget (searchInput);
   layout->addWidget (taskList);
   layout->addWidget (taskInput);
-  QHBoxLayout *buttonLayout = new QHBoxLayout;
+  auto *buttonLayout = new QHBoxLayout;
   buttonLayout->addWidget (loadButton);
   buttonLayout->addStretch ();
   buttonLayout->addWidget (addButton);
@@ -126,11 +220,9 @@ void ToDoList::createLayout ()
   buttonLayout->addWidget (saveButton);
 
 
-
-
   layout->addLayout (buttonLayout);
 
-  QWidget *centralWidget = new QWidget (this);
+  auto *centralWidget = new QWidget (this);
   centralWidget->setLayout (layout);
   setCentralWidget (centralWidget);
 }
@@ -146,27 +238,32 @@ void ToDoList::createConnections ()
   connect (taskList, &CustomListWidget::customContextMenuRequested, this, &ToDoList::showContextMenu);
   connect (searchInput, &QLineEdit::textChanged, this, &ToDoList::searchTasks);
   connect (addLinkButton, &QToolButton::clicked, this, &ToDoList::addTaskWithLink);
-  connect (taskList, &CustomListWidget::itemClicked, this, &ToDoList::openLink);
+  connect (taskList, &CustomListWidget::itemDoubleClicked, this, &ToDoList::openLink);
 }
 
-void ToDoList::addTask ()
+void ToDoList::addTask () const
 {
   QString task = taskInput->text ();
   if (!task.isEmpty ())
     {
-      QListWidgetItem *item = new QListWidgetItem (task, taskList);
+      auto item = new QListWidgetItem (task, taskList);
       item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
       item->setCheckState (Qt::Unchecked);
       taskInput->clear ();
     }
 }
 
-void ToDoList::removeTask () { delete taskList->currentItem (); }
+void ToDoList::removeTask () const { delete taskList->currentItem (); }
 
 void ToDoList::saveTasks ()
 {
   QString currentDate = QDateTime::currentDateTime ().toString ("dd_MM_yy");
-  QString fileName = QFileDialog::getSaveFileName (this, "Save Tasks", currentDate, "Text Files (*.txt);;All Files (*)");
+#ifdef _WIN32
+  // Ваше действие для Windows
+#else
+  currentDate = currentDate + ".txt";
+#endif
+  const QString fileName = QFileDialog::getSaveFileName (this, "Save Tasks", currentDate, "Text Files (*.txt);;All Files (*)");
   if (fileName.isEmpty ())
     {
       return;
@@ -192,7 +289,7 @@ void ToDoList::saveTasks ()
 
 void ToDoList::loadTasks ()
 {
-  QString fileName = QFileDialog::getOpenFileName (this, "Load Tasks", "", "Text Files (*.txt);;All Files (*)");
+  const QString fileName = QFileDialog::getOpenFileName (this, "Load Tasks", "", "Text Files (*.txt);;All Files (*)");
   if (fileName.isEmpty ())
     {
       return;
@@ -209,14 +306,14 @@ void ToDoList::loadTasks ()
           QStringList parts = line.split ("|");
           if (parts.size () == 3)
             {
-              QListWidgetItem *item = new QListWidgetItem (parts[0], taskList);
+              auto *item = new QListWidgetItem (parts[0], taskList);
               item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
               item->setCheckState (parts[1] == "1" ? Qt::Checked : Qt::Unchecked);
               item->setData (Qt::UserRole, parts[2]);
               if (!parts[2].isEmpty ())
                 {
                   item->setText (QString ("%2").arg (parts[0]));
-                  item->setForeground (Qt::blue);
+                  item->setForeground (QColor (0x00bfff));
                   item->setToolTip (parts[2]);
                 }
             }
@@ -228,19 +325,18 @@ void ToDoList::loadTasks ()
       QMessageBox::warning (this, "Error", "Cannot load tasks");
     }
 }
-void ToDoList::editTask (QListWidgetItem *item) { taskList->editItem (item); }
+void ToDoList::editTask (QListWidgetItem *item) const { taskList->editItem (item); }
 
 void ToDoList::showContextMenu (const QPoint &pos)
 {
-  QListWidgetItem *item = taskList->itemAt (pos);
-  if (item)
+  if (QListWidgetItem *item = taskList->itemAt (pos))
     {
       QMenu contextMenu;
-      contextMenu.setStyleSheet("background-color: #2b2b2b; color: #a9b7c6;");
+      contextMenu.setStyleSheet ("background-color: #21252b; color: #ffffff;");
       QAction *changeColorAction = contextMenu.addAction ("Изменить цвет");
       QAction *changeFontSizeAction = contextMenu.addAction ("Изменить размер шрифта");
       QAction *editAction = contextMenu.addAction ("Редактировать");
-      connect (editAction, &QAction::triggered, [this, item]() { editTask(item); });
+      connect (editAction, &QAction::triggered, [this, item] () { editTask (item); });
       connect (changeColorAction, &QAction::triggered, this, &ToDoList::changeTaskColor);
       connect (changeFontSizeAction, &QAction::triggered, this, &ToDoList::changeFontSize);
       contextMenu.exec (taskList->mapToGlobal (pos));
@@ -249,8 +345,7 @@ void ToDoList::showContextMenu (const QPoint &pos)
 
 void ToDoList::changeTaskColor ()
 {
-  QListWidgetItem *item = taskList->currentItem ();
-  if (item)
+  if (QListWidgetItem *item = taskList->currentItem ())
     {
       QColor color = QColorDialog::getColor (item->foreground ().color (), this, "Выберите цвет");
       if (color.isValid ())
@@ -261,8 +356,7 @@ void ToDoList::changeTaskColor ()
 }
 void ToDoList::changeFontSize ()
 {
-  QListWidgetItem *item = taskList->currentItem ();
-  if (item)
+  if (QListWidgetItem *item = taskList->currentItem ())
     {
       bool ok;
       int fontSize
@@ -276,7 +370,7 @@ void ToDoList::changeFontSize ()
     }
 }
 
-void ToDoList::searchTasks (const QString &text)
+void ToDoList::searchTasks (const QString &text) const
 {
   for (int i = 0; i < taskList->count (); ++i)
     {
@@ -294,12 +388,13 @@ void ToDoList::addTaskWithLink ()
       QString link = QInputDialog::getText (this, "Add Link", "Enter number of tickets", QLineEdit::Normal, "", &ok);
       if (ok && !link.isEmpty ())
         {
-          QListWidgetItem *item = new QListWidgetItem (task, taskList);
+          QListWidgetItem *item = new QListWidgetItem (taskList);
           auto full_link = "https://redmine.rfdyn.ru/issues/" + link;
           item->setData (Qt::UserRole, full_link);
           item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
           item->setCheckState (Qt::Unchecked);
-          item->setText (QString ("%1 - %2").arg (link, task));
+          QString coloredText = QString ("%1 - %2").arg (link, task);
+          item->setText (coloredText);
           item->setForeground (QColor("#00bfff"));
           item->setToolTip (link);
           taskInput->clear ();
@@ -307,7 +402,7 @@ void ToDoList::addTaskWithLink ()
     }
 }
 
-void ToDoList::openLink (QListWidgetItem *item)
+void ToDoList::openLink (const QListWidgetItem *item)
 {
   QString link = item->data (Qt::UserRole).toString ();
   if (!link.isEmpty ())

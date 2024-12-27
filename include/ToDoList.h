@@ -4,8 +4,7 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMainWindow>
-#include <QObject>
-#include <QToolButton>
+
 enum class buttons
 {
   add,
@@ -24,31 +23,31 @@ public:
   explicit ToDoList (QWidget *parent = nullptr);
 
 private slots:
-  void addTask ();
-  void removeTask ();
+  void addTask () const;
+  void removeTask () const;
   void saveTasks ();
   void loadTasks ();
-  void editTask (QListWidgetItem *item);
+  void editTask (QListWidgetItem *item) const;
   void changeTaskColor ();
   void changeFontSize ();
   void showContextMenu (const QPoint &pos);
-  void searchTasks (const QString &text);
+  void searchTasks (const QString &text) const;
   void addTaskWithLink ();
-  void openLink (QListWidgetItem *item);
+  static void openLink (const QListWidgetItem *item);
 
 private:
   void createWidgets ();
   void createLayout ();
   void createConnections ();
 
-  CustomListWidget *taskList;
-  QLineEdit *taskInput;
-  QLineEdit *searchInput;
-  QToolButton *addButton;
-  QToolButton *removeButton;
-  QToolButton *saveButton;
-  QToolButton *loadButton;
-  QToolButton *addLinkButton;
+  CustomListWidget *taskList{};
+  QLineEdit *taskInput{};
+  QLineEdit *searchInput{};
+  QToolButton *addButton{};
+  QToolButton *removeButton{};
+  QToolButton *saveButton{};
+  QToolButton *loadButton{};
+  QToolButton *addLinkButton{};
 };
 
 #endif  // TODOLIST_H
