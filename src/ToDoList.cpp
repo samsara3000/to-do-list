@@ -72,8 +72,11 @@ QString get_tool_tip_name (const buttons button)
 
 ToDoList::ToDoList (QWidget *parent) : QMainWindow (parent)
 {
-  setWindowFlags (Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+  setWindowFlags(Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+#ifdef _WIN32
   setAttribute (Qt::WA_PaintOnScreen, true);
+#else
+#endif
   setAttribute (Qt::WA_NoSystemBackground, false);
 
   QFont defaultFont = QApplication::font ();
@@ -235,28 +238,27 @@ void ToDoList::createHeaderWidget ()
   QIcon icon_about (":/icons/header/about.png");
   menu->addAction (icon_settings, "Settings...", this, SLOT (openSettings ()));
   menu->addAction (icon_about, "About", this, SLOT (showAbout ()));
-  menu->addSeparator();
+  menu->addSeparator ();
   menu->addAction ("Exit", this, SLOT (close ()));
-  menu->setStyleSheet(
+  menu->setStyleSheet (
       "QMenu {"
       "    border: 1px solid #333841;" /* Задаем цвет рамки */
-      "    margin: 0px;" /* Убираем отступы вокруг меню для соединения с сепаратором */
+      "    margin: 0px;"               /* Убираем отступы вокруг меню для соединения с сепаратором */
       "}"
       "QMenu::separator {"
       "    height: 1px;"
       "    background: #333841;" /* Задаем тот же цвет, что и у рамки */
-      "    margin: 0px;" /* Убираем отступы, чтобы сепаратор соединялся с рамкой */
+      "    margin: 0px;"         /* Убираем отступы, чтобы сепаратор соединялся с рамкой */
       "    padding: 0px;"
       "}"
       "QMenu::item:selected {"
       "    background-color: #323844;"
       "    color: white;"
       "    border-radius: 8px;" /* Округляем углы */
-      "}"
-  );
+      "}");
   // Подключение меню к кнопке
-  mainMenuButton->setMenu(menu);
-  mainMenuButton->setPopupMode(QToolButton::InstantPopup);
+  mainMenuButton->setMenu (menu);
+  mainMenuButton->setPopupMode (QToolButton::InstantPopup);
 }
 
 void ToDoList::createWidgets ()
@@ -588,13 +590,17 @@ void ToDoList::keyPressEvent (QKeyEvent *event)
     }
   QMainWindow::keyPressEvent (event);
 }
-
 void ToDoList::paintEvent (QPaintEvent *event)
 {
+  QMainWindow::paintEvent (event);  // Вызов базовой реализации
+
   QPainter painter (this);
+  painter.setRenderHint (QPainter::Antialiasing);
+  painter.setRenderHint (QPainter::TextAntialiasing);
+
+  // Пользовательский код рисования
   drawHeader (&painter);
   drawButtons ();
-  QMainWindow::paintEvent (event);
 }
 
 void ToDoList::drawHeader (QPainter *painter) const
