@@ -7,5 +7,11 @@
         <file>icons/save.png</file>
         <file>icons/to_do.png</file>
         <file>icons/add_link.png</file>
+        <file>icons/header/minimize.png</file>
+        <file>icons/header/maximize.png</file>
+        <file>icons/header/close.png</file>
+        <file>icons/header/settings.png</file>
+        <file>icons/header/settings_.png</file>
+        <file>icons/header/about.png</file>
     </qresource>
 </RCC>

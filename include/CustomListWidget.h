@@ -9,10 +9,10 @@ class CustomListWidget : public QListWidget
   Q_OBJECT
 
 public:
-  explicit CustomListWidget(QWidget *parent = nullptr);
+  explicit CustomListWidget (QWidget *parent = nullptr);
 
 protected:
-  void mousePressEvent(QMouseEvent *event) override;
+  void mousePressEvent (QMouseEvent *event) override;
 };
 
-#endif // CUSTOMLISTWIDGET_H
+#endif  // CUSTOMLISTWIDGET_H

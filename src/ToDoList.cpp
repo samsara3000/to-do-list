@@ -8,11 +8,12 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPainter>
 #include <QTextStream>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <iostream>
-#include <QToolBar>
+
 QString get_icon_path (const buttons button)
 {
   switch (button)
@@ -27,6 +28,14 @@ QString get_icon_path (const buttons button)
         return ":/icons/load.png";
       case buttons::add_link:
         return ":/icons/add_link.png";
+      case buttons::maximize:
+        return ":/icons/header/maximize.png";
+      case buttons::minimize:
+        return ":/icons/header/minimize.png";
+      case buttons::close:
+        return ":/icons/header/close.png";
+      case buttons::main_menu:
+        return ":/icons/header/settings.png";
       case buttons::none:
         return "";
     };
@@ -47,6 +56,14 @@ QString get_tool_tip_name (const buttons button)
         return "Load Tasks from File";
       case buttons::add_link:
         return "Add Task with Redmine Link";
+      case buttons::maximize:
+        return "Maximize";
+      case buttons::minimize:
+        return "Minimize";
+      case buttons::close:
+        return "Close";
+      case buttons::main_menu:
+        return "Main Menu";
       case buttons::none:
         return "";
     };
@@ -55,6 +72,10 @@ QString get_tool_tip_name (const buttons button)
 
 ToDoList::ToDoList (QWidget *parent) : QMainWindow (parent)
 {
+  setWindowFlags (Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+  setAttribute (Qt::WA_PaintOnScreen, true);
+  setAttribute (Qt::WA_NoSystemBackground, false);
+
   QFont defaultFont = QApplication::font ();
   defaultFont.setPointSize (11);
   QApplication::setFont (defaultFont);
@@ -63,8 +84,8 @@ ToDoList::ToDoList (QWidget *parent) : QMainWindow (parent)
   createConnections ();
   setWindowTitle ("To-Do List");
 
-  setMaximumSize (400, 300);
-  // Set the window to stay on top of all other windows
+  // setMaximumSize (400, 300);
+  //  Set the window to stay on top of all other windows
   setWindowFlags (windowFlags () | Qt::WindowStaysOnTopHint);
 
   const QIcon appIcon (":/icons/to_do.png");
@@ -168,16 +189,78 @@ ToDoList::ToDoList (QWidget *parent) : QMainWindow (parent)
       "QToolTip {"
       "background-color: #282c34; color: #ffffff; "
       "}");
+  setStyleSheet (
+      "QMainWindow {"
+      "background-color: #21252b;"
+      "}"
+      "QListWidget {"
+      "background-color: #282c34; color: #a9b7c6; "
+      "border: 1px solid #3c3f41; "
+      "border-radius: 3px; "
+      "padding: 2px; "
+      "margin: 2px; "
+      "}");
+}
+
+void ToDoList::add_icon (QToolButton *button, buttons button_type)
+{
+  const QIcon icon (get_icon_path (button_type));
+  button->setIcon (icon);
+  button->setIconSize (QSize (30, 30));
+  button->setToolTip (get_tool_tip_name (button_type));
+}
+
+void ToDoList::createHeaderWidget ()
+{
+  mainMenuButton = new QToolButton (this);
+  add_icon (mainMenuButton, buttons::main_menu);
+  minimizeButton = new QToolButton (this);
+  add_icon (minimizeButton, buttons::minimize);
+  maximizeButton = new QToolButton (this);
+  add_icon (maximizeButton, buttons::maximize);
+  closeButton = new QToolButton (this);
+  add_icon (closeButton, buttons::close);
+
+  const QString buttonStyle = "QToolButton { background-color: #282c34; color: #ffffff; border: none; }"
+                              "QToolButton:hover { background-color: #323844; }"
+                              "QToolButton::menu-indicator { image: none; }"
+                              "QToolTip { background-color: #282c34; color: #ffffff; border: 1px solid #3c3f41; }";
+  mainMenuButton->setStyleSheet (buttonStyle);
+  minimizeButton->setStyleSheet (buttonStyle);
+  maximizeButton->setStyleSheet (buttonStyle);
+  closeButton->setStyleSheet (buttonStyle);
+
+  auto menu = new QMenu (this);
+  QIcon icon_settings (":/icons/header/settings_.png");
+  QIcon icon_about (":/icons/header/about.png");
+  menu->addAction (icon_settings, "Settings...", this, SLOT (openSettings ()));
+  menu->addAction (icon_about, "About", this, SLOT (showAbout ()));
+  menu->addSeparator();
+  menu->addAction ("Exit", this, SLOT (close ()));
+  menu->setStyleSheet(
+      "QMenu {"
+      "    border: 1px solid #333841;" /* Задаем цвет рамки */
+      "    margin: 0px;" /* Убираем отступы вокруг меню для соединения с сепаратором */
+      "}"
+      "QMenu::separator {"
+      "    height: 1px;"
+      "    background: #333841;" /* Задаем тот же цвет, что и у рамки */
+      "    margin: 0px;" /* Убираем отступы, чтобы сепаратор соединялся с рамкой */
+      "    padding: 0px;"
+      "}"
+      "QMenu::item:selected {"
+      "    background-color: #323844;"
+      "    color: white;"
+      "    border-radius: 8px;" /* Округляем углы */
+      "}"
+  );
+  // Подключение меню к кнопке
+  mainMenuButton->setMenu(menu);
+  mainMenuButton->setPopupMode(QToolButton::InstantPopup);
 }
 
 void ToDoList::createWidgets ()
 {
-  auto add_icon = [] (auto button, buttons button_type) {
-    QIcon icon (get_icon_path (button_type));
-    button->setIcon (icon);
-    button->setIconSize (QSize (30, 30));
-    button->setToolTip (get_tool_tip_name (button_type));
-  };
   taskList = new CustomListWidget (this);
   taskList->setDragEnabled (true);
   taskList->setAcceptDrops (true);
@@ -202,11 +285,14 @@ void ToDoList::createWidgets ()
   loadButton->setFixedSize (25, 25);
   addLinkButton->setFixedSize (25, 25);
   taskList->setContextMenuPolicy (Qt::CustomContextMenu);
+
+  createHeaderWidget ();
 }
 
 void ToDoList::createLayout ()
 {
   auto *layout = new QVBoxLayout;
+  layout->setContentsMargins (marginsSize, 33, marginsSize, marginsSize);
   layout->addWidget (searchInput);
   layout->addWidget (taskList);
   layout->addWidget (taskInput);
@@ -239,12 +325,15 @@ void ToDoList::createConnections ()
   connect (searchInput, &QLineEdit::textChanged, this, &ToDoList::searchTasks);
   connect (addLinkButton, &QToolButton::clicked, this, &ToDoList::addTaskWithLink);
   connect (taskList, &CustomListWidget::itemDoubleClicked, this, &ToDoList::openLink);
+
+  connect (minimizeButton, &QToolButton::clicked, this, [this] () { showMinimized (); });
+  connect (closeButton, &QToolButton::clicked, this, [this] () { close (); });
 }
 
-void ToDoList::addTask () const
+void ToDoList::addTask ()
 {
-  QString task = taskInput->text ();
-  if (!task.isEmpty ())
+  save_state ();
+  if (QString task = taskInput->text (); !task.isEmpty ())
     {
       auto item = new QListWidgetItem (task, taskList);
       item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
@@ -253,10 +342,15 @@ void ToDoList::addTask () const
     }
 }
 
-void ToDoList::removeTask () const { delete taskList->currentItem (); }
+void ToDoList::removeTask ()
+{
+  save_state ();
+  delete taskList->currentItem ();
+}
 
 void ToDoList::saveTasks ()
 {
+  save_state ();
   QString currentDate = QDateTime::currentDateTime ().toString ("dd_MM_yy");
 #ifdef _WIN32
   // Ваше действие для Windows
@@ -289,6 +383,7 @@ void ToDoList::saveTasks ()
 
 void ToDoList::loadTasks ()
 {
+  save_state ();
   const QString fileName = QFileDialog::getOpenFileName (this, "Load Tasks", "", "Text Files (*.txt);;All Files (*)");
   if (fileName.isEmpty ())
     {
@@ -303,8 +398,7 @@ void ToDoList::loadTasks ()
       while (!in.atEnd ())
         {
           QString line = in.readLine ();
-          QStringList parts = line.split ("|");
-          if (parts.size () == 3)
+          if (QStringList parts = line.split ("|"); parts.size () == 3)
             {
               auto *item = new QListWidgetItem (parts[0], taskList);
               item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
@@ -325,7 +419,12 @@ void ToDoList::loadTasks ()
       QMessageBox::warning (this, "Error", "Cannot load tasks");
     }
 }
-void ToDoList::editTask (QListWidgetItem *item) const { taskList->editItem (item); }
+
+void ToDoList::editTask (QListWidgetItem *item)
+{
+  save_state ();
+  taskList->editItem (item);
+}
 
 void ToDoList::showContextMenu (const QPoint &pos)
 {
@@ -333,9 +432,9 @@ void ToDoList::showContextMenu (const QPoint &pos)
     {
       QMenu contextMenu;
       contextMenu.setStyleSheet ("background-color: #21252b; color: #ffffff;");
-      QAction *changeColorAction = contextMenu.addAction ("Изменить цвет");
-      QAction *changeFontSizeAction = contextMenu.addAction ("Изменить размер шрифта");
-      QAction *editAction = contextMenu.addAction ("Редактировать");
+      const QAction *changeColorAction = contextMenu.addAction ("Изменить цвет");
+      const QAction *changeFontSizeAction = contextMenu.addAction ("Изменить размер шрифта");
+      const QAction *editAction = contextMenu.addAction ("Редактировать");
       connect (editAction, &QAction::triggered, [this, item] () { editTask (item); });
       connect (changeColorAction, &QAction::triggered, this, &ToDoList::changeTaskColor);
       connect (changeFontSizeAction, &QAction::triggered, this, &ToDoList::changeFontSize);
@@ -345,10 +444,10 @@ void ToDoList::showContextMenu (const QPoint &pos)
 
 void ToDoList::changeTaskColor ()
 {
+  save_state ();
   if (QListWidgetItem *item = taskList->currentItem ())
     {
-      QColor color = QColorDialog::getColor (item->foreground ().color (), this, "Выберите цвет");
-      if (color.isValid ())
+      if (const auto color = QColorDialog::getColor (item->foreground ().color (), this, "Выберите цвет"); color.isValid ())
         {
           item->setForeground (color);
         }
@@ -356,10 +455,11 @@ void ToDoList::changeTaskColor ()
 }
 void ToDoList::changeFontSize ()
 {
+  save_state ();
   if (QListWidgetItem *item = taskList->currentItem ())
     {
       bool ok;
-      int fontSize
+      const auto fontSize
           = QInputDialog::getInt (this, "Изменить размер шрифта", "Введите размер шрифта:", item->font ().pointSize (), 1, 100, 1, &ok);
       if (ok)
         {
@@ -381,21 +481,21 @@ void ToDoList::searchTasks (const QString &text) const
 
 void ToDoList::addTaskWithLink ()
 {
-  QString task = taskInput->text ();
-  if (!task.isEmpty ())
+  save_state ();
+  if (QString task = taskInput->text (); !task.isEmpty ())
     {
       bool ok;
-      QString link = QInputDialog::getText (this, "Add Link", "Enter number of tickets", QLineEdit::Normal, "", &ok);
-      if (ok && !link.isEmpty ())
+      if (QString link = QInputDialog::getText (this, "Add Link", "Enter number of tickets", QLineEdit::Normal, "", &ok);
+          ok && !link.isEmpty ())
         {
-          QListWidgetItem *item = new QListWidgetItem (taskList);
-          auto full_link = "https://redmine.rfdyn.ru/issues/" + link;
+          const auto item = new QListWidgetItem (taskList);
+          auto full_link = linkPrefix + link;
           item->setData (Qt::UserRole, full_link);
           item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
           item->setCheckState (Qt::Unchecked);
-          QString coloredText = QString ("%1 - %2").arg (link, task);
+          const QString coloredText = QString ("%1 - %2").arg (link, task);
           item->setText (coloredText);
-          item->setForeground (QColor("#00bfff"));
+          item->setForeground (QColor (0x00bfff));
           item->setToolTip (link);
           taskInput->clear ();
         }
@@ -404,15 +504,177 @@ void ToDoList::addTaskWithLink ()
 
 void ToDoList::openLink (const QListWidgetItem *item)
 {
-  QString link = item->data (Qt::UserRole).toString ();
-  if (!link.isEmpty ())
+  if (const QString link = item->data (Qt::UserRole).toString (); !link.isEmpty ())
     {
       QDesktopServices::openUrl (QUrl (link));
     }
 }
 
+void ToDoList::undo ()
+{
+  if (!undoStack.isEmpty ())
+    {
+      redoStack.push (getCurrentState ());
+      applyState (undoStack.pop ());
+    }
+}
+
+void ToDoList::redo ()
+{
+  if (!redoStack.isEmpty ())
+    {
+      undoStack.push (getCurrentState ());
+    }
+}
+
+QStringList ToDoList::getCurrentState () const
+{
+  QStringList state;
+  for (int i = 0; i < taskList->count (); ++i)
+    {
+      const QListWidgetItem *item = taskList->item (i);
+      QString task = item->text ();
+      QString link = item->data (Qt::UserRole).toString ();
+      QString checked = (item->checkState () == Qt::Checked) ? "1" : "0";
+      state << QString ("%1|%2|%3").arg (task, checked, link);
+    }
+  return state;
+}
+
+void ToDoList::applyState (const QStringList &state) const
+{
+  taskList->clear ();
+  for (const QString &line : state)
+    {
+      if (QStringList parts = line.split ('|'); parts.size () == 3)
+        {
+          auto *item = new QListWidgetItem (parts[0], taskList);
+          item->setFlags (item->flags () | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
+          item->setCheckState (parts[1] == "1" ? Qt::Checked : Qt::Unchecked);
+          item->setData (Qt::UserRole, parts[2]);
+          if (!parts[2].isEmpty ())
+            {
+              item->setText (QString ("%1").arg (parts[0]));
+              item->setForeground (QColor (0x00bfff));
+              item->setToolTip (parts[2]);
+            }
+        }
+    }
+}
+
+void ToDoList::save_state ()
+{
+  undoStack.push (getCurrentState ());
+  redoStack.clear ();
+}
+
+void ToDoList::keyPressEvent (QKeyEvent *event)
+{
+  if (event->modifiers () & Qt::ControlModifier)
+    {
+      if (event->key () == Qt::Key_Z)
+        {
+          undo ();
+          event->accept ();
+          return;
+        }
+      else if (event->key () == Qt::Key_X)
+        {
+          redo ();
+          event->accept ();
+          return;
+        }
+    }
+  QMainWindow::keyPressEvent (event);
+}
+
+void ToDoList::paintEvent (QPaintEvent *event)
+{
+  QPainter painter (this);
+  drawHeader (&painter);
+  drawButtons ();
+  QMainWindow::paintEvent (event);
+}
+
+void ToDoList::drawHeader (QPainter *painter) const
+{
+  const QRect headerRect (0, 0, width (), 30);
+  painter->setBrush (QColor (0x282c34));
+  painter->drawRect (headerRect);
+
+  painter->setPen (QColor (0x283348));
+  painter->drawRect (headerRect);
+
+  drawIcon (painter, ":/icons/to_do.png", QRect (marginsSize, marginsSize, buttonSize, buttonSize));
+
+  painter->setPen (QColor (0xffffff));
+  painter->drawText (QRect (90, 0, width () - 100, 30), Qt::AlignVCenter, "To-Do List");
+}
+
+void ToDoList::drawIcon (QPainter *painter, const QString &iconPath, const QRect &rect) const
+{
+  QIcon icon (iconPath);
+  QPixmap pixmap = icon.pixmap (buttonSize, buttonSize);
+  painter->drawPixmap (rect, pixmap);
+}
+
+void ToDoList::drawButtons () const
+{
+  const int buttonWidth = buttonSize + 2;
+
+  minimizeButton->setGeometry (width () - 2 * buttonWidth, marginsSize, buttonWidth, buttonSize);
+  closeButton->setGeometry (width () - buttonWidth, marginsSize, buttonWidth, buttonSize);
+  mainMenuButton->setGeometry (27, marginsSize, buttonSize, buttonSize);
+  mainMenuButton->raise ();
+  minimizeButton->raise ();
+  closeButton->raise ();
+  maximizeButton->raise ();
+  maximizeButton->setVisible (false);
+}
 
 
+void ToDoList::mousePressEvent (QMouseEvent *event)
+{
+  if (event->button () == Qt::LeftButton && event->pos ().y () <= 30)
+    {
+      dragging = true;
+      dragStartPosition = event->globalPosition ().toPoint () - frameGeometry ().topLeft ();
+      event->accept ();
+    }
+}
 
+void ToDoList::mouseMoveEvent (QMouseEvent *event)
+{
+  if (dragging)
+    {
+      move (event->globalPosition ().toPoint () - dragStartPosition);
+      event->accept ();
+    }
+}
+
+void ToDoList::mouseReleaseEvent (QMouseEvent *event)
+{
+  if (event->button () == Qt::LeftButton)
+    {
+      dragging = false;
+      event->accept ();
+    }
+}
+
+void ToDoList::openSettings ()
+{
+  SettingsDialog dialog (this, linkPrefix);
+  if (dialog.exec () == QDialog::Accepted)
+    {
+      linkPrefix = dialog.getLinkPrefix ();
+    }
+}
+
+void ToDoList::showAbout ()
+{
+  std::bitset<4> bitsetArg("1000");
+  AboutDialog dialog (this, darkTheme, bitsetArg, "About To-Do List");
+  dialog.exec();
+}
 // Include the MOC file
 #include "moc_ToDoList.cpp"

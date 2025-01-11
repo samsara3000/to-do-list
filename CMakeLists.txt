@@ -15,12 +15,13 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 # Enable automatic MOC and RCC
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-
 # Add executable
 add_executable(ToDo
         main.cpp
         src/ToDoList.cpp
         src/CustomListWidget.cpp
+        src/SettingsDialog.cpp
+        src/AboutDialog.cpp
         resources.qrc
 )
 
