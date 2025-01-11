@@ -524,6 +524,7 @@ void ToDoList::redo ()
   if (!redoStack.isEmpty ())
     {
       undoStack.push (getCurrentState ());
+      applyState (redoStack.pop ());
     }
 }
 
